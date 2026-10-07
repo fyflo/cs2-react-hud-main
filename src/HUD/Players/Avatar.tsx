@@ -14,36 +14,53 @@ interface IProps {
   showSkull?: boolean;
   showCam?: boolean;
   sidePlayer?: boolean;
-  teamId?: string | null
+  teamId?: string | null;
 }
-const Avatar = (
-  { steamid, url, height, width, showCam, showSkull, sidePlayer, teamId }: IProps,
-) => {
+const Avatar = ({
+  steamid,
+  url,
+  height,
+  width,
+  showCam,
+  showSkull,
+  sidePlayer,
+  teamId,
+}: IProps) => {
   const data = useConfig("display_settings");
 
-  const avatarUrl = teamId && (data?.replace_avatars === "always" || (data?.replace_avatars === "if_missing" && !url)) ? `${apiUrl}api/teams/logo/${teamId}` : url;
-  if(!avatarUrl && !showCam) return null;
+  const avatarUrl =
+    teamId &&
+    (data?.replace_avatars === "always" ||
+      (data?.replace_avatars === "if_missing" && !url))
+      ? `${apiUrl}api/teams/logo/${teamId}`
+      : url;
+  if (!avatarUrl && !showCam) return null;
+  // Resolve relative paths so HUD opened via file:// or outside relay can fetch avatars
+  const resolvedAvatarUrl =
+    typeof avatarUrl === "string" && avatarUrl.startsWith("/")
+      ? `${apiUrl.replace(/\/$/, "")}${avatarUrl}`
+      : avatarUrl ?? undefined;
   return (
     <div className={`avatar`}>
-      {showCam
-        ? (sidePlayer
-          ? (
-            <div className="videofeed">
-              <PlayerCamera steamid={steamid} visible={true} />
-            </div>
-          )
-          : <CameraContainer observedSteamid={steamid} />)
-        : null}
-      {showSkull
-        ? <Skull height={height} width={width} />
-        : (
-          avatarUrl ? <img
-            src={avatarUrl}
-            height={height}
-            width={width}
-            alt={"Avatar"}
-          /> : null
-        )}
+      {showCam ? (
+        sidePlayer ? (
+          <div className="videofeed">
+            <PlayerCamera steamid={steamid} visible={true} />
+          </div>
+        ) : (
+          <CameraContainer observedSteamid={steamid} />
+        )
+      ) : null}
+      {showSkull ? (
+        <Skull height={height} width={width} />
+      ) : avatarUrl ? (
+        <img
+          src={resolvedAvatarUrl}
+          height={height}
+          width={width}
+          alt={"Avatar"}
+        />
+      ) : null}
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import * as I from "csgogsi";
 import { Timer } from "./MatchBar";
-import TeamLogo from './TeamLogo';
-import PlantDefuse from "../Timers/PlantDefuse"
+import TeamLogo from "./TeamLogo";
+import PlantDefuse from "../Timers/PlantDefuse";
 import { onGSI } from "../../API/contexts/actions";
 import WinAnnouncement from "./WinIndicator";
 import { useState } from "react";
@@ -12,29 +12,38 @@ interface IProps {
   team: I.Team;
 }
 
-const TeamScore = ({orientation, timer, team }: IProps) => {
-    const [ show, setShow ] = useState(false);
+const TeamScore = ({ orientation, timer, team }: IProps) => {
+  const [show, setShow] = useState(false);
 
-    onGSI("roundEnd", result => {
-      if(result.winner.orientation !== orientation) return;
+  onGSI(
+    "roundEnd",
+    (result) => {
+      const winnerSide = result?.winner?.side as "CT" | "T" | undefined;
+      const winnerFixedOrientation =
+        winnerSide === "CT" ? "left" : winnerSide === "T" ? "right" : undefined;
+      if (winnerFixedOrientation !== orientation) return;
       setShow(true);
 
       setTimeout(() => {
         setShow(false);
       }, 5000);
-    }, [orientation]);
+    },
+    [orientation]
+  );
 
-    return (
-      <>
-        <div className={`team ${orientation} ${team.side || ''}`}>
-          <div className="team-name">{team?.name || null}</div>
-          <TeamLogo team={team} />
-          <div className="round-thingy"><div className="inner"></div></div>
+  return (
+    <>
+      <div className={`team ${orientation} ${team.side || ""}`}>
+        <div className="team-name">{team?.name || null}</div>
+        <TeamLogo team={team} />
+        <div className="round-thingy">
+          <div className="inner"></div>
         </div>
-        <PlantDefuse timer={timer} side={orientation} />
-        <WinAnnouncement team={team} show={show} />
-      </>
-    );
-}
+      </div>
+      <PlantDefuse timer={timer} side={orientation} />
+      <WinAnnouncement team={team} show={show} />
+    </>
+  );
+};
 
 export default TeamScore;
