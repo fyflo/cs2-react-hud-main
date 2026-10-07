@@ -11,8 +11,8 @@ type DirectCameraInfo = {
 };
 
 // Camera provider that means "pure peer-to-peer vdo.ninja iframe, no local
-// MediaMTX relay". In this mode there is nothing to "start", so
-// the HUD must render the iframe immediately instead of waiting for the relay.
+// MediaMTX relay". In this mode there is nothing to "start", so the HUD must
+// render the iframe immediately instead of waiting for the relay.
 const DIRECT_VDO_PROVIDER = "vdo";
 
 const BOOLEAN_TRUE_VALUES = ["true", "1", "yes", "on", "enabled"];
@@ -96,8 +96,8 @@ export function resolveDirectCameraUrl(steamid: string): Promise<DirectCameraInf
       const provider = String(json?.provider || "").trim().toLowerCase();
       const configuredDirectSource = hasConfiguredCameraSource(rawVdoUrl, view);
       const enabled = parseBooleanish(json?.enabled, configuredDirectSource);
-      // Provider "vdo" (direct iframe): no local MediaMTX relay to
-      // start, so the iframe mounts immediately and is NOT gated on relayRunning.
+      // Provider "vdo" (direct iframe): no local MediaMTX relay to start, so
+      // the iframe mounts immediately and is NOT gated on relayRunning.
       const isDirectVdoProvider = provider === DIRECT_VDO_PROVIDER;
       // Stop relay = master kill switch: hide the camera when the relay is off,
       // EXCEPT in pure "vdo" mode where there is no relay at all.
