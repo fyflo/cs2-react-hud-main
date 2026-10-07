@@ -1,5 +1,9 @@
 ### **CS2 React HUD for [LHM.gg](https://LHM.gg)**
 
+#### vdo.ninja
+
+Support for cameras from vdo.ninja has been added to the HUD.
+
 CS2 React HUD for [LHM.gg](https://LHM.gg), created by Lexogrine, is an open source Counter-Strike 2 HUD that you can use and modify to your needs. It’s the core element of building customized CS2 HUDs and spectator overlays for the [LHM.gg](https://LHM.gg) platform.
 
 It comes with a set of default options and features that you can use for creating your unique esport experience.
