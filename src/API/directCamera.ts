@@ -11,7 +11,7 @@ type DirectCameraInfo = {
 };
 
 // Camera provider that means "pure peer-to-peer vdo.ninja iframe, no local
-// MediaMTX relay" (Gluck-style). In this mode there is nothing to "start", so
+// MediaMTX relay". In this mode there is nothing to "start", so
 // the HUD must render the iframe immediately instead of waiting for the relay.
 const DIRECT_VDO_PROVIDER = "vdo";
 
@@ -96,11 +96,11 @@ export function resolveDirectCameraUrl(steamid: string): Promise<DirectCameraInf
       const provider = String(json?.provider || "").trim().toLowerCase();
       const configuredDirectSource = hasConfiguredCameraSource(rawVdoUrl, view);
       const enabled = parseBooleanish(json?.enabled, configuredDirectSource);
-      // Provider "vdo" (Gluck-style direct iframe): no local MediaMTX relay to
+      // Provider "vdo" (direct iframe): no local MediaMTX relay to
       // start, so the iframe mounts immediately and is NOT gated on relayRunning.
       const isDirectVdoProvider = provider === DIRECT_VDO_PROVIDER;
       // Stop relay = master kill switch: hide the camera when the relay is off,
-      // EXCEPT in pure "vdo" mode where there is no relay at all (like Gluck).
+      // EXCEPT in pure "vdo" mode where there is no relay at all.
       const relayGateOpen = isDirectVdoProvider || relayRunning;
       const shouldUseCamera = success && relayGateOpen && enabled && configuredDirectSource;
 
