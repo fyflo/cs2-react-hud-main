@@ -3,6 +3,22 @@ import api from '..';
 import { socket } from '../socket';
 import Peer from 'simple-peer';
 
+// simple-peer relies on Node's readable-stream, which reads `process` /
+// `global` and calls process.nextTick at runtime (e.g. inside emitReadable on
+// a peer rebuild). Vite/webpack production bundles do not polyfill these, so
+// re-creating a peer threw "process is not defined". Provide minimal,
+// idempotent browser shims before any peer is created.
+(() => {
+    const g = window as any;
+    if (typeof g.global === "undefined") g.global = g;
+    const tick = (cb: (...a: any[]) => void, ...args: any[]) => Promise.resolve().then(() => cb(...args));
+    if (typeof g.process === "undefined") {
+        g.process = { env: {}, browser: true, nextTick: tick };
+    } else if (typeof g.process.nextTick !== "function") {
+        g.process.nextTick = tick;
+    }
+})();
+
 const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
 
 type OfferData = {
@@ -97,8 +113,12 @@ const initiateConnection = async () => {
 
         // Connection already made, ignore incoming request
         if (currentConnection) {
-            console.log("Connection has been made already");
-            return;
+            // A fresh offer for an existing steamid means the player restarted
+            // their broadcast (new player socket). The old peer is stale (its
+            // 'close' may not fire on LAN), so tear it down and rebuild —
+            // otherwise the re-offer is ignored until the HUD is refreshed.
+            console.log("Re-offer for existing steamid, rebuilding peer");
+            closeConnection(steamid);
         }
 
         if (camera.uuid !== roomId) return;
